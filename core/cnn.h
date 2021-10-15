@@ -53,6 +53,9 @@ inline bool containsNaNs(const cv::Mat& m)
  * @param methodFlag Specifies the PnP algorithm to be used.
  * @return True if PnP succeeds.
  */
+/*啥也没干，safe了一下，如果pnp没有算出来，返回一个0
+这也是个值得学习的，MapNet也用了很多这个safe cauculation
+*/
 inline bool safeSolvePnP(
     std::vector<cv::Point3f> objPts,
     const std::vector<cv::Point2f>& imgPts,
