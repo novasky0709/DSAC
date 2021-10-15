@@ -231,9 +231,14 @@ private:
 	cv::Mat rotation; 
 	cv::Mat invRotation;
 	cv::Point3d translation;
-	/*CoordSet 在自己的实现中是一个64*64*3的矩阵，
-	First is a 
+	/*
+	CoordSet 在自己的实现中是一个64*64*3的矩阵，
+	First is a vector for length 4096maybe
+	and a pair from camera pixel coordinate to world coordinate
+	but why
 	64*64*3对64*64*3的pair呢？
+	not
+	64*64*2->64*64*3
 	*/
 	std::vector<std::pair<cv::Point3d,cv::Point3d>> points; // point correspondences used to calculated this pose, stored for refinement later
 	
