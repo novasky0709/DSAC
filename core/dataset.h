@@ -35,7 +35,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdexcept>
 
 /** Interface for reading and writing datasets and some basis operations.*/
-
+/*这个dataset.h一部分是做数据集读入的（后面）就是做转换的，输入一个2D像素坐标，和该像素的深度，输出一个3D point in Camera Coordinate*/
 namespace jp
 {
     /**
@@ -239,14 +239,17 @@ namespace jp
             for(unsigned x = 0; x < img.cols; x++)
             for(unsigned y = 0; y < img.rows; y++)
             {
+               /*如果深度是0，则忽略*/
                 if(depthData(y, x) == 0)
                 {
                     img(y, x) = jp::coord3_t(0, 0, 0);
                     continue;
                 }
-
+               /*我理解的Eye是指三维变量，pixel指2D坐标，pxToEye真正实现了像素坐标系向相机坐标系的转换*/
                 img(y, x) = pxToEye(x, y, depthData(y, x));
-
+               /*
+               这个操作没太看懂，可能是坐标转换？。。。
+               */
                 cv::Point3d pt = h.invTransform(cv::Point3d(img(y, x)[0], img(y, x)[1], img(y, x)[2]));
                 img(y, x)[0] = pt.x;
                 img(y, x)[1] = pt.y;
