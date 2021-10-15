@@ -33,7 +33,7 @@ namespace jp
     {
         return ((pt(0) != 0) || (pt(1) != 0) || (pt(2) != 0));
     }
-
+/*由像素坐标转化为了相机坐标系（相当于左乘了一个内参阵）*/
     jp::coord3_t pxToEye(int x, int y, jp::depth_t depth)
     {
         jp::coord3_t eye;
