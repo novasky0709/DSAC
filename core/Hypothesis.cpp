@@ -27,21 +27,26 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "Hypothesis.h"
 #include "../core/dataset.h"
-
+/*
+多态，对不同输入，给出Hypothesis结构
+*/
+/*
+什么都不输入的情况，给旋转矩阵置E，给位移矩阵置（0，0，0）
+*/
 Hypothesis::Hypothesis() 
 {
     this->translation = cv::Point3d(0, 0, 0);
     this->rotation = cv::Mat::eye(3, 3, CV_64F);
     this->invRotation = cv::Mat::eye(3, 3, CV_64F);
 }
-
+/*一个正常输入的情况，对rotation、translation正常赋值*/
 Hypothesis::Hypothesis(cv::Mat rot,cv::Point3d trans)
 {
     this->translation = trans;
     this->rotation = rot;
     this->invRotation = this->rotation.inv();
 }
-
+/*输入的类型是jp::info_t.Whats jp::info_t*/
 Hypothesis::Hypothesis(jp::info_t info)
 {
     cv::Mat rot(3, 3, CV_64F);
@@ -56,7 +61,7 @@ Hypothesis::Hypothesis(jp::info_t info)
     this->rotation = rot;
     this->invRotation = this->rotation.inv();
 }
-
+/*输入类型是T，旋转矩阵，一个常规的分解*/
 Hypothesis::Hypothesis(cv::Mat transform) 
 {
     this->translation = cv::Point3d(0, 0, 0);
@@ -72,12 +77,12 @@ Hypothesis::Hypothesis(cv::Mat transform)
     this->translation.z = transform.at<double>(2, 3);
     this->invRotation = this->rotation.inv();
 }
-
+/*如果输入的是一组Hypothtsis，执行refine操作*/
 Hypothesis::Hypothesis(std::vector<std::pair<cv::Point3d, cv::Point3d>> points) 
 {
     refine(points);
 }
-
+/*I suppose：输入是旋转向量（3d）和位移向量（3d）*/
 Hypothesis::Hypothesis(std::vector<double> rodVecAndTrans ) 
 {
     assert (rodVecAndTrans.size() == 6);
@@ -97,6 +102,9 @@ Hypothesis::Hypothesis(std::vector<double> rodVecAndTrans )
     
     this->invRotation = this->rotation.inv();
 }
+/*
+开始进入函数实现部分！
+*/
 
 void Hypothesis::setRotation(cv::Mat rot)
 {
@@ -108,7 +116,7 @@ void Hypothesis::setTranslation(cv::Point3d trans)
 {
     this->translation = trans;
 }
-
+/*这个方法是值得学习的，在transform这个函数中加入一个参数isNormal来做标准化的逻辑*/
 cv::Point3d Hypothesis::transform(cv::Point3d p, bool isNormal) 
 {
     cv::Mat tpm = this->rotation * cv::Mat(p); // apply rotation
@@ -121,7 +129,7 @@ cv::Point3d Hypothesis::transform(cv::Point3d p, bool isNormal)
     else
         return tp;	// apply no translation
 }
-
+/*从这个函数可以看出来，他对于mean是个必选项，但是isNormal是个非必选项，这也是个必选的trick*/
 cv::Point3d Hypothesis::invTransform(cv::Point3d p) 
 {
     p -= this->translation;	// apply translation
@@ -133,7 +141,7 @@ cv::Point3d Hypothesis::invTransform(cv::Point3d p)
                    tpm.at<double>(2, 0));
     return tp;
 }
-
+/*从这个源码可以看到，cv其实有自己的trace，并且之前处理策略是正确的，保acos取值-1，1。超了还不管*/
 double Hypothesis::calcAngularDistance(const Hypothesis& h)  const
 {
     cv::Mat rotDiff = this->getRotation() * h.getInvRotation();
@@ -230,7 +238,7 @@ cv::Mat Hypothesis::getInvRotation() const
 {
     return this->invRotation;
 }
-
+/*转换成一个4D矩阵*/
 cv::Mat Hypothesis::getTransformation() const 
 {
     cv::Mat result(4, 4, CV_64F, 0.0);
